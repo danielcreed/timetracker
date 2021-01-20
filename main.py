@@ -143,19 +143,25 @@ f = Tkinter.Frame(root)
 
 # name using widget Label
 my_var = StringVar()
+enter_name2 = Tkinter.Label(f, text="Enter Client name", fg="black", font="Verdana 24 bold")
 enter_name = Tkinter.Entry(f, text="First Name", textvariable=my_var)
-enter_name.pack()
 
 label.pack()
+
 Start = Tkinter.Button(f, text='Start', width=6, command=lambda: start(label))
 Stop = Tkinter.Button(f, text='Submit', width=6, state='disabled', command=stop)
 Reset = Tkinter.Button(f, text='Reset', width=6, state='disabled', command=lambda: reset(label))
 ShowDB = Tkinter.Button(text='Display DB', width=25, command=displaydb)
 
 
-f.pack(anchor='center', pady=5)
-Start.pack(side="left")
-Stop.pack(side="left")
-Reset.pack(side="left")
+f.pack(anchor='center', pady=0)
+Start.pack()
+Stop.pack()
+Reset.pack()
+
+enter_name2.pack()
+enter_name.pack()
+
+
 ShowDB.pack(side=BOTTOM)
 root.mainloop()
