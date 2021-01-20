@@ -117,7 +117,7 @@ def displaydb():
     newWindow.title("Database")
 
     # sets the geometry of toplevel
-    newWindow.minsize(width=250, height=200)
+    newWindow.minsize(width=350, height=200)
 
     # A Label widget to show in toplevel
     # Connection MYSQL
@@ -135,7 +135,7 @@ def displaydb():
     i = 0
     for entries in my_conn:
         for j in range(len(entries)):
-            e = Entry(newWindow, width=15, fg='blue')
+            e = Entry(newWindow, width=25, fg='blue')
             e.grid(row=i, column=j)
             e.insert(END, entries[j])
         i = i + 1
@@ -161,7 +161,7 @@ label.pack()
 Start = Tkinter.Button(f, text='Start', width=6, command=lambda: start(label))
 Stop = Tkinter.Button(f, text='Submit', width=6, state='disabled', command=stop)
 Reset = Tkinter.Button(f, text='Reset', width=6, state='disabled', command=lambda: reset(label))
-ShowDB = Tkinter.Button(text='Display DB', width=15, command=displaydb)
+ShowDB = Tkinter.Button(text='Display DB', width=25, command=displaydb)
 
 
 f.pack(anchor='center', pady=5)
