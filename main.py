@@ -16,7 +16,6 @@ def counter_label(label):
         if running:
             global counter
 
-            # To manage the intial delay.
             if counter == 0:
                 display = "Starting..."
             else:
@@ -59,7 +58,6 @@ def stop():
 
     if customer_name:
         insert_mysql()
-        label = Tkinter.Label(text="Reset", fg="black", font="Verdana 30 bold")
     else:
         Start['state'] = 'disabled'
         Reset['state'] = 'disabled'
@@ -88,6 +86,7 @@ def insert_mysql():
     mycursor.execute(sql, val)
     mydb.commit()
     print(mycursor.rowcount, "record inserted.")
+    Stop['state'] = 'disable'
 
 
 # Reset function of the stopwatch
@@ -98,26 +97,16 @@ def reset(label):
     # If rest is pressed after pressing stop.
     if not running:
         label['text'] = 'Welcome!'
-        label = Tkinter.Label(text="Reset", fg="black", font="Verdana 30 bold")
 
-    # If reset is pressed while the stopwatch is running.
     else:
         label['text'] = 'Starting...'
-        label = Tkinter.Label(text="Reset", fg="black", font="Verdana 30 bold")
 
 
 def displaydb():
-    # Toplevel object which will
-    # be treated as a new window
-    newWindow = Toplevel()
 
-
-    # sets the title of the
-    # Toplevel widget
-    newWindow.title("Database")
-
-    # sets the geometry of toplevel
-    newWindow.minsize(width=350, height=200)
+    new_window = Toplevel()
+    new_window.title("Database")
+    new_window.minsize(width=350, height=200)
 
     # A Label widget to show in toplevel
     # Connection MYSQL
@@ -135,12 +124,12 @@ def displaydb():
     i = 0
     for entries in my_conn:
         for j in range(len(entries)):
-            e = Entry(newWindow, width=25, fg='blue')
+            e = Entry(new_window, width=25, fg='blue')
             e.grid(row=i, column=j)
             e.insert(END, entries[j])
         i = i + 1
     # ---Create a display grid
-    newWindow.mainloop()
+    new_window.mainloop()
 
 
 root = Tkinter.Tk()
