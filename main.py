@@ -11,7 +11,6 @@ counter = 0
 running = False
 
 
-
 def counter_label(label):
     def count():
         if running:
@@ -41,28 +40,38 @@ def counter_label(label):
 
 
 # start function of the stopwatch
-def Start(label):
+def start(label):
     global running
     running = True
     counter_label(label)
-    start['state'] = 'disabled'
-    stop['state'] = 'normal'
-    reset['state'] = 'normal'
+    Start['state'] = 'disabled'
+    Stop['state'] = 'normal'
+    Reset['state'] = 'normal'
 
 
 # Stop function of the stopwatch
-def Stop():
+def stop():
     global running
-    start['state'] = 'normal'
-    stop['state'] = 'disabled'
-    reset['state'] = 'normal'
+    Start['state'] = 'normal'
+    Reset['state'] = 'normal'
     running = False
+    customer_name = my_var.get()
 
-    InsertSQL()
+    if customer_name:
+        insert_mysql()
+        label = Tkinter.Label(text="Reset", fg="black", font="Verdana 30 bold")
+    else:
+        Start['state'] = 'disabled'
+        Reset['state'] = 'disabled'
+        displayerror()
 
 
+def displayerror():
+    label = Tkinter.Label(text="You need a Customer!", fg="black", font="Verdana 30 bold")
+    label.pack()
 
-def InsertSQL():
+
+def insert_mysql():
     mydb = mysql.connector.connect(
         host="localhost",
         user="timetracker",
@@ -70,72 +79,94 @@ def InsertSQL():
         database="timetracker"
     )
     mycursor = mydb.cursor()
-
     tt = datetime.fromtimestamp(counter)
     string = tt.strftime("%M:%S")
     display = string
-
-    customername = myvar.get()
+    customer_name = my_var.get()
     sql = "INSERT INTO entries (customer, time_entry) VALUES (%s, %s)"
-    val = (customername,  string)
+    val = (customer_name,  string)
     mycursor.execute(sql, val)
     mydb.commit()
     print(mycursor.rowcount, "record inserted.")
 
 
 # Reset function of the stopwatch
-def Reset(label):
+def reset(label):
     global counter
-    counter = 0
 
+    counter = 0
     # If rest is pressed after pressing stop.
-    if running == False:
-        reset['state'] = 'disabled'
+    if not running:
         label['text'] = 'Welcome!'
+        label = Tkinter.Label(text="Reset", fg="black", font="Verdana 30 bold")
 
     # If reset is pressed while the stopwatch is running.
     else:
         label['text'] = 'Starting...'
+        label = Tkinter.Label(text="Reset", fg="black", font="Verdana 30 bold")
+
+
+def displaydb():
+    # Toplevel object which will
+    # be treated as a new window
+    newWindow = Toplevel()
+
+
+    # sets the title of the
+    # Toplevel widget
+    newWindow.title("Database")
+
+    # sets the geometry of toplevel
+    newWindow.minsize(width=250, height=200)
+
+    # A Label widget to show in toplevel
+    # Connection MYSQL
+    my_connect = mysql.connector.connect(
+        host="localhost",
+        user="timetracker",
+        password="Timetracker2020",
+        database="timetracker"
+    )
+    # Connection MYSQL
+
+    # Create a display grid---
+    my_conn = my_connect.cursor()
+    my_conn.execute("SELECT customer,time_entry,TIMESTAMP FROM entries  ORDER BY id DESC LIMIT 10")
+    i = 0
+    for entries in my_conn:
+        for j in range(len(entries)):
+            e = Entry(newWindow, width=15, fg='blue')
+            e.grid(row=i, column=j)
+            e.insert(END, entries[j])
+        i = i + 1
+    # ---Create a display grid
+    newWindow.mainloop()
 
 
 root = Tkinter.Tk()
-root.title("Stopwatch")
+root.title("TimeTracker")
 
 # Fixing the window size.
 root.minsize(width=250, height=200)
-label = Tkinter.Label(root, text="Welcome!", fg="black", font="Verdana 30 bold")
+label = Tkinter.Label(root, text="Welcome To TimeTracker!", fg="black", font="Verdana 30 bold")
 f = Tkinter.Frame(root)
 
-myvar = StringVar()
+
 # name using widget Label
-entername = Tkinter.Entry(f, text="First Name", textvariable=myvar)
+my_var = StringVar()
+enter_name = Tkinter.Entry(f, text="First Name", textvariable=my_var)
+enter_name.pack()
 
-entername.pack()
 label.pack()
-
-start = Tkinter.Button(f, text='Start', width=6, command=lambda: Start(label))
-stop = Tkinter.Button(f, text='Stop', width=6, state='disabled', command=Stop)
-reset = Tkinter.Button(f, text='Reset', width=6, state='disabled', command=lambda: Reset(label))
-
-
-
-
+Start = Tkinter.Button(f, text='Start', width=6, command=lambda: start(label))
+Stop = Tkinter.Button(f, text='Submit', width=6, state='disabled', command=stop)
+Reset = Tkinter.Button(f, text='Reset', width=6, state='disabled', command=lambda: reset(label))
+ShowDB = Tkinter.Button(text='Display DB', width=15, command=displaydb)
 
 
 f.pack(anchor='center', pady=5)
-start.pack(side="left")
-stop.pack(side="left")
-reset.pack(side="left")
+Start.pack(side="left")
+Stop.pack(side="left")
+Reset.pack(side="left")
+ShowDB.pack(side=BOTTOM)
 root.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
