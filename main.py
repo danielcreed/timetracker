@@ -1,56 +1,141 @@
-import time
+# Python program to illustrate a stop watch
+# using Tkinter
+# importing the required libraries
 import mysql.connector
-
-
+import tkinter as Tkinter
+from datetime import datetime
 from tkinter import *
-window=Tk()
 
 
-window.title('StopWatch')
-window.geometry("300x200+10+20")
+counter = 0
+running = False
 
 
-window.mainloop()
 
-# Code to add widgets will go here...
+def counter_label(label):
+    def count():
+        if running:
+            global counter
 
+            # To manage the intial delay.
+            if counter == 0:
+                display = "Starting..."
+            else:
+                tt = datetime.fromtimestamp(counter)
+                string = tt.strftime("%M:%S")
+                display = string
 
-def time_convert(sec):
-    mins = sec // 60
-    sec = sec % 60
-    hours = mins // 60
-    mins = mins % 60
-    print("Time Lapsed = {0}:{1}:{2}".format(int(hours),int(mins),int(sec)))
+            label['text'] = display  # Or label.config(text=display)
 
+            # label.after(arg1, arg2) delays by
+            # first argument given in milliseconds
+            # and then calls the function given as second argument.
+            # Generally like here we need to call the
+            # function in which it is present repeatedly.
+            # Delays by 1000ms=1 seconds and call count again.
+            label.after(1000, count)
+            counter += 1
 
-customerval = txtfld=Entry(window, text="This is Entry Widget", bd=5)
-input("Press Enter to start")
-start_time = time.time()
-
-input("Press Enter to stop")
-end_time = time.time()
-
-time_lapsed = end_time - start_time
-time_convert(time_lapsed)
-
-
-lbl=Label(window, text=time_lapsed, fg='red', font=("Helvetica", 16))
-
-mydb = mysql.connector.connect(
-  host="localhost",
-  user="timetracker",
-  password="Timetracker2020",
-  database="timetracker"
-)
-
-mycursor = mydb.cursor()
+    # Triggering the start of the counter.
+    count()
 
 
-sql = "INSERT INTO entries (customer, time_entry) VALUES (%s, %s)"
-val = (customerval, time_lapsed)
-mycursor.execute(sql, val)
+# start function of the stopwatch
+def Start(label):
+    global running
+    running = True
+    counter_label(label)
+    start['state'] = 'disabled'
+    stop['state'] = 'normal'
+    reset['state'] = 'normal'
 
-mydb.commit()
 
-print(mycursor.rowcount, "record inserted.")
+# Stop function of the stopwatch
+def Stop():
+    global running
+    start['state'] = 'normal'
+    stop['state'] = 'disabled'
+    reset['state'] = 'normal'
+    running = False
+
+    InsertSQL()
+
+
+
+def InsertSQL():
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="timetracker",
+        password="Timetracker2020",
+        database="timetracker"
+    )
+    mycursor = mydb.cursor()
+
+    tt = datetime.fromtimestamp(counter)
+    string = tt.strftime("%M:%S")
+    display = string
+
+    customername = myvar.get()
+    sql = "INSERT INTO entries (customer, time_entry) VALUES (%s, %s)"
+    val = (customername,  string)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    print(mycursor.rowcount, "record inserted.")
+
+
+# Reset function of the stopwatch
+def Reset(label):
+    global counter
+    counter = 0
+
+    # If rest is pressed after pressing stop.
+    if running == False:
+        reset['state'] = 'disabled'
+        label['text'] = 'Welcome!'
+
+    # If reset is pressed while the stopwatch is running.
+    else:
+        label['text'] = 'Starting...'
+
+
+root = Tkinter.Tk()
+root.title("Stopwatch")
+
+# Fixing the window size.
+root.minsize(width=250, height=200)
+label = Tkinter.Label(root, text="Welcome!", fg="black", font="Verdana 30 bold")
+f = Tkinter.Frame(root)
+
+myvar = StringVar()
+# name using widget Label
+entername = Tkinter.Entry(f, text="First Name", textvariable=myvar)
+
+entername.pack()
+label.pack()
+
+start = Tkinter.Button(f, text='Start', width=6, command=lambda: Start(label))
+stop = Tkinter.Button(f, text='Stop', width=6, state='disabled', command=Stop)
+reset = Tkinter.Button(f, text='Reset', width=6, state='disabled', command=lambda: Reset(label))
+
+
+
+
+
+
+f.pack(anchor='center', pady=5)
+start.pack(side="left")
+stop.pack(side="left")
+reset.pack(side="left")
+root.mainloop()
+
+
+
+
+
+
+
+
+
+
+
 
